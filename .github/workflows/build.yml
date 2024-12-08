@@ -1,61 +1,40 @@
-name: release
+name: Release
 
 on:
-  push:
+  push: 
     branches:
       - master
   workflow_dispatch:
 
 jobs:
-  sync_build_release:
+  build_and_release:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: master
 
-      - name: Sync with upstream repository
-        run: |
-          git checkout master
-          git remote add upstream https://github.com/suzhelan/TimTool.git
-          git fetch upstream
-          UPDATES=$(git log HEAD..upstream/master --oneline)
-          if [ -n "$UPDATES" ]; then
-            git merge upstream/master -m "Sync with upstream on $(date)"
-            git push origin master
-          else
-            echo "No updates from upstream."
-            exit 0
-          fi
-
-      - name: Setup Java
+      - name: Setup Java Environment
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Setup Gradle
+      - name: Setup Gradle Environment
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build APK
+      - name: BuildApk
         run: |
           chmod +x ./gradlew
           ./gradlew clean assembleRelease
-
-      - name: Create Git Tag
-        run: |
-          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           name: TimTool
-          tag_name: ${{ github.ref_name }}
+          tag_name: "latest"
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           files: |
             app/build/outputs/apk/release/*.apk
