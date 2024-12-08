@@ -1,0 +1,58 @@
+name: release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  sync_build_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Sync with upstream repository
+        run: |
+          git remote add upstream https://github.com/suzhelan/TimTool.git
+          git fetch upstream
+          UPDATES=$(git log HEAD..upstream/main --oneline)
+          if [ -n "$UPDATES" ]; then
+            git merge upstream/main -m "Sync with upstream on $(date)"
+            git push origin main
+          else
+            echo "No updates from upstream."
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Build APK
+        run: |
+          ./gradlew clean assembleRelease
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TimTool
+          path: app/build/outputs/apk/release/*.apk
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: TimTool
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          files: |
+            app/build/outputs/apk/release/*.apk
