@@ -3,7 +3,7 @@ name: release
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
           UPDATES=$(git log HEAD..upstream/master --oneline)
           if [ -n "$UPDATES" ]; then
             git merge upstream/master -m "Sync with upstream on $(date)"
-            git push origin main
+            git push origin master
           else
             echo "No updates from upstream."
             exit 0
