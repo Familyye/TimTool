@@ -24,8 +24,6 @@ jobs:
           if [ -n "$UPDATES" ]; then
             git merge upstream/master -m "Sync with upstream on $(date)"
             git push origin master
-          else
-            echo "No updates from upstream."
           fi
 
       - name: Set execute permission for gradlew
@@ -46,6 +44,12 @@ jobs:
         run: |
           ./gradlew clean assembleRelease
 
+      - name: Create new tag
+        run: |
+          TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +59,7 @@ jobs:
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-          name: TimTool
+          tag: $TAG_NAME
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           files: |
             app/build/outputs/apk/release/*.apk
