@@ -23,7 +23,7 @@ jobs:
           UPDATES=$(git log HEAD..upstream/master --oneline)
           if [ -n "$UPDATES" ]; then
             git merge upstream/master -m "Sync with upstream on $(date)"
-            git push origin master
+            git push https://x-access-token:${{ secrets.CUSTOM_GITHUB_TOKEN }}@github.com/${{ github.repository }} master
           fi
 
       - name: Set execute permission for gradlew
@@ -45,10 +45,14 @@ jobs:
           ./gradlew clean assembleRelease
 
       - name: Create new tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
         run: |
           TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag $TAG_NAME
-          git push origin $TAG_NAME
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $TAG_NAME
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
