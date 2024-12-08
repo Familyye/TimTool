@@ -28,6 +28,9 @@ jobs:
             echo "No updates from upstream."
           fi
 
+      - name: Set execute permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
