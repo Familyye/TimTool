@@ -3,7 +3,7 @@ name: release
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
           fetch-depth: 0
 
       - name: Sync with upstream repository
@@ -23,11 +22,10 @@ jobs:
           UPDATES=$(git log HEAD..upstream/master --oneline)
           if [ -n "$UPDATES" ]; then
             git merge upstream/master -m "Sync with upstream on $(date)"
-            git push https://x-access-token:${{ secrets.CUSTOM_GITHUB_TOKEN }}@github.com/${{ github.repository }} master
-          fi
-
-      - name: Set execute permission for gradlew
-        run: chmod +x ./gradlew
+            git push origin main
+          else
+            echo "No updates from upstream."
+            exit 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -37,33 +35,23 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
 
       - name: Build APK
         run: |
+          chmod +x ./gradlew
           ./gradlew clean assembleRelease
 
-      - name: Create new tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+      - name: Create Git Tag
         run: |
           TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag $TAG_NAME
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} $TAG_NAME
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: TimTool
-          path: app/build/outputs/apk/release/*.apk
+          git push origin $TAG_NAME
 
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-          tag: $TAG_NAME
+          name: TimTool
+          tag_name: ${{ github.ref_name }}
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           files: |
             app/build/outputs/apk/release/*.apk
