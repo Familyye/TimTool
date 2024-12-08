@@ -17,6 +17,7 @@ jobs:
 
       - name: Sync with upstream repository
         run: |
+          git checkout master
           git remote add upstream https://github.com/suzhelan/TimTool.git
           git fetch upstream
           UPDATES=$(git log HEAD..upstream/master --oneline)
@@ -44,6 +45,8 @@ jobs:
       - name: Create Git Tag
         run: |
           TAG_NAME="v$(date +'%Y%m%d%H%M%S')"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git tag $TAG_NAME
           git push origin $TAG_NAME
 
