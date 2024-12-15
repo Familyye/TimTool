@@ -10,14 +10,14 @@ import java.lang.reflect.Method
  * 通过方法签名获取方法
  *
  */
-fun String.method(): Method = MethodUtils.getMethodByDesc(this)
+fun String.toMethod(): Method = MethodUtils.getMethodByDesc(this)
 
 /**
  * 对象拓展 通过对象的方法参数调用
  * 不支持静态方法的调用
  */
-fun <T> Any.invoke(
-    name: String,
+fun <T> Any.call(
+    methodName: String,
     vararg args: Any?
 ): T {
     val paramTypes = args.map {
@@ -28,7 +28,7 @@ fun <T> Any.invoke(
         }
     }.toTypedArray()
     return MethodUtils.create(this)
-        .methodName(name)
+        .methodName(methodName)
         .params(*paramTypes)
         .callFirst<T>(this, *args)
 }
