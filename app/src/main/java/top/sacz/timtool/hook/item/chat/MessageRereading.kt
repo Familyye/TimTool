@@ -42,11 +42,12 @@ class MessageRereading : BaseSwitchFunctionHookItem() {
 
     override fun getOnClickListener(): View.OnClickListener {
         return View.OnClickListener {
-            var editSize: EditText? = null
-            var isDoubleClick: CheckBox? = null
+            lateinit var editSize: EditText
+            lateinit var isDoubleClick: CheckBox
             MessageDialog.build()
                 .setCustomView(object :
                     OnBindView<MessageDialog>(R.layout.layout_rereading_setting) {
+                    @SuppressLint("SetTextI18n")
                     override fun onBind(
                         dialog: MessageDialog,
                         v: View
@@ -58,8 +59,8 @@ class MessageRereading : BaseSwitchFunctionHookItem() {
                     }
                 })
                 .setOkButton("保存") { _, _ ->
-                    MessageRereadingConfig.setSize(editSize!!.text.toString().toFloat())
-                    MessageRereadingConfig.setDoubleClickMode(isDoubleClick!!.isChecked)
+                    MessageRereadingConfig.setSize(editSize.text.toString().toFloat())
+                    MessageRereadingConfig.setDoubleClickMode(isDoubleClick.isChecked)
                     false
                 }
                 .show()

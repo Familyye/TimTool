@@ -8,6 +8,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import top.sacz.timtool.hook.core.HookItemLoader
+import top.sacz.timtool.hook.core.HookItemMethodFindProcessor
 import top.sacz.timtool.hook.util.PathTool
 import top.sacz.timtool.net.NewLoginTask
 import top.sacz.timtool.net.UpdateService
@@ -52,8 +53,13 @@ class HookSteps {
     }
 
     fun initHooks() {
+        val methodFindProcessor = HookItemMethodFindProcessor()
         //环境初始化 开始进行hook项目的初始化
         if (HookEnv.isMainProcess()) {
+            if (methodFindProcessor.isDataExpire()) {
+                methodFindProcessor.startFindAsync { initHooks() }
+                return
+            }
             XposedBridge.log("[Tim小助手]环境初始化完成")
             //登录
             NewLoginTask().loginAndGetUserInfoAsync()
@@ -61,6 +67,7 @@ class HookSteps {
             val service = UpdateService()
             service.requestUpdateAsyncAndToast()
         }
+        methodFindProcessor.scanConfigMethod()
         val hookItemLoader = HookItemLoader()
         hookItemLoader.loadConfig()
         hookItemLoader.loadHookItem()
