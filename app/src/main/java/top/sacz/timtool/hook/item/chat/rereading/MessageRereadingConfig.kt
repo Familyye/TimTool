@@ -1,6 +1,6 @@
 package top.sacz.timtool.hook.item.chat.rereading
 
-import top.sacz.timtool.util.KvHelper
+import top.sacz.xphelper.util.KvHelper
 
 object MessageRereadingConfig {
     // 两次点击按钮之间的点击间隔不能少于500毫秒
@@ -17,13 +17,6 @@ object MessageRereadingConfig {
         config.put("isDoubleClickMode", isDoubleClickMode)
     }
 
-    fun isShowInMenu(): Boolean {
-        return config.getBoolean("isShowInMenu", false)
-    }
-
-    fun setShowInMenu(isShowInMenu: Boolean) {
-        config.put("isShowInMenu", isShowInMenu)
-    }
 
     fun getSize(): Float {
         return config.getFloat("size", 24f)
