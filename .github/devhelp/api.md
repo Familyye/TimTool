@@ -22,6 +22,8 @@ QQEnvTool.getUinFromUid(String uid)
  * @param type 联系人类型 2是群聊 1是好友 为4时创建频道聊天对象
  * @param uin  正常的QQ号/群号
  * @param guildId 频道id
+
+解释下peerUid和Uin的关系 uin是qq号 peerUid是好友的uid 在QQNT架构中引入
 ```java
 //获取当前聊天对象
 Object contact = ContactUtils.getCurrentContact();
@@ -70,7 +72,7 @@ class MessageMenuAddRereading : BaseSwitchFunctionHookItem(), OnMenuBuilder {
         param: XC_MethodHook.MethodHookParam
     ) {
         val item =
-            QQCustomMenu.createMenuItem(aioMsgItem, "复读", R.id.item_repeat, R.drawable.repeat) {
+            QQCustomMenu.createMenuItem(aioMsgItem, "复读", R.id.item_msg_repeat, R.drawable.repeat) {
                 val msgRecord = aioMsgItem.callMethod<Any>("getMsgRecord")
                 //调用复读方法
                 val listener =
